@@ -8,6 +8,7 @@ pkg := es-proxy
 Pkg := es-proxy
 version := 0.2.0
 PREFIX ?= /usr/local
+OPENSSL_RPATH = /home/linuxbrew/.linuxbrew/opt/openssl@3/lib
 
 .PHONY: default help build release debug test test-functional test-memory test-stress install install-dev uninstall deps deps-update clean ensure-docker build-rpm build-deb deploy rpm deb
 
@@ -96,6 +97,8 @@ deps-update:
 .gerbil/bin/$(pkg): es-proxy.ss mock-es.ss es-proxy-stress-test.ss build.ss gerbil.pkg
 	@echo "Building $(Pkg) Binary"
 	gerbil build
+	patchelf --set-rpath $(OPENSSL_RPATH) .gerbil/bin/$(pkg)
+	patchelf --set-rpath $(OPENSSL_RPATH) .gerbil/bin/es-proxy-stress-test
 
 clean:
 	@echo "Make clean:"
