@@ -32,8 +32,8 @@
              (##gc)
              (thread-sleep! 0.1)
              (let ((baseline-stats (##process-statistics))
-                   (baseline-heap (f64vector-ref (##process-statistics) 0)))
-               (displayln "  Baseline heap: " baseline-heap)
+                   (baseline-heap (/ (f64vector-ref (##process-statistics) 17) (* 1024.0 1024.0))))
+               (displayln (format "  Baseline heap: ~aMB" (floor baseline-heap)))
 
                ;; Spawn concurrent clients that run for the full duration
                (let ((client-threads
@@ -113,15 +113,16 @@
                            (set! last-completed current)
                            (##gc)
                            (let* ((stats (##process-statistics))
-                                  (heap (f64vector-ref stats 0))
+                                  (heap (/ (f64vector-ref stats 17) (* 1024.0 1024.0)))
                                   (growth (- heap baseline-heap)))
                              (set! snapshots (append snapshots (list heap)))
-                             (displayln (format "  [~as] Requests: ~a, RPS: ~a, Errors: ~a, Heap growth: ~a"
+                             (displayln (format "  [~as] Requests: ~a, RPS: ~a, Errors: ~a, Heap: ~aMB (+~aMB)"
                                                 (inexact->exact (floor elapsed))
                                                 current
                                                 (inexact->exact (floor rps))
                                                 (atomic-counter-get errors)
-                                                growth))))
+                                                (inexact->exact (floor heap))
+                                                (inexact->exact (floor growth))))))
                          (mloop))))
 
                    ;; Wait for all clients to finish
@@ -136,7 +137,7 @@
                      (##gc)
                      (thread-sleep! 0.1)
                      (let* ((final-stats (##process-statistics))
-                            (final-heap (f64vector-ref final-stats 0))
+                            (final-heap (/ (f64vector-ref final-stats 17) (* 1024.0 1024.0)))
                             (final-growth (- final-heap baseline-heap))
                             (error-rate (if (> (+ total-requests total-errors) 0)
                                           (* 100.0 (/ (exact->inexact total-errors)
@@ -149,8 +150,8 @@
                        (displayln (format "  Total errors: ~a" total-errors))
                        (displayln (format "  Average RPS: ~a" (inexact->exact (floor final-rps))))
                        (displayln (format "  Error rate: ~a%" error-rate))
-                       (displayln (format "  Final heap: ~a" final-heap))
-                       (displayln (format "  Heap growth: ~a" final-growth))
+                       (displayln (format "  Final heap: ~aMB" (inexact->exact (floor final-heap))))
+                       (displayln (format "  Heap growth: ~aMB" (inexact->exact (floor final-growth))))
 
                        ;; Assertions
                        (check (mock-es-request-count mock) => total-requests)

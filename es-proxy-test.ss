@@ -272,7 +272,7 @@
            (##gc)
            (thread-sleep! 0.5)
            (let* ((baseline-stats (##process-statistics))
-                  (baseline-heap (f64vector-ref baseline-stats 0)))
+                  (baseline-heap (f64vector-ref baseline-stats 17)))
              (displayln "\n  Baseline heap: " baseline-heap)
              (let ((iterations 5)
                    (requests-per-iteration 200)
@@ -306,7 +306,7 @@
                      (##gc)
                      (thread-sleep! 0.3)
                      (let* ((stats (##process-statistics))
-                            (heap (f64vector-ref stats 0)))
+                            (heap (f64vector-ref stats 17)))
                        (set! snapshots (append snapshots (list heap)))
                        (displayln "  Iteration " (+ iter 1) ": heap=" heap
                                   " growth=" (- heap baseline-heap))))
