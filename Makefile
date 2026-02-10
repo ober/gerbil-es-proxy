@@ -64,10 +64,9 @@ test-memory:
 	@rm -rf .gerbil/lib/es-proxy ~/.gerbil/lib/es-proxy ~/.gerbil/lib/static/es-proxy__*
 	GERBIL_LOADPATH=$(CURDIR) gerbil test es-proxy-test.ss
 
-test-stress:
-	@echo "Running $(Pkg) extended stress test (5 minutes)"
-	@rm -rf .gerbil/lib/es-proxy ~/.gerbil/lib/es-proxy ~/.gerbil/lib/static/es-proxy__*
-	GERBIL_LOADPATH=$(CURDIR) gerbil test es-proxy-stress-test.ss
+test-stress: build
+	@echo "Running $(Pkg) extended stress test (5 minutes, compiled)"
+	.gerbil/bin/es-proxy-stress-test
 
 # Install/uninstall targets
 install: build
@@ -94,7 +93,7 @@ deps-update:
 	gerbil pkg update
 
 # Build rules
-.gerbil/bin/$(pkg): es-proxy.ss mock-es.ss build.ss gerbil.pkg
+.gerbil/bin/$(pkg): es-proxy.ss mock-es.ss es-proxy-stress-test.ss build.ss gerbil.pkg
 	@echo "Building $(Pkg) Binary"
 	gerbil build
 

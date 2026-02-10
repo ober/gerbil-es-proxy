@@ -1,4 +1,4 @@
-(export es-proxy-stress-test)
+(export #t)
 (import :std/test
         :std/net/request
         :std/text/json
@@ -170,3 +170,10 @@
                              (error "Memory may be leaking: grew without stabilizing"
                                     final-growth)))))))))))
          (lambda () (mock-es-stop! mock)))))))
+
+(def (main . args)
+  (run-tests! es-proxy-stress-test)
+  (test-report-summary!)
+  (if (eq? (test-result) 'OK)
+    (exit 0)
+    (exit 1)))

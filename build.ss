@@ -3,4 +3,5 @@
 
 (defbuild-script
   '("mock-es"
-    (exe: "es-proxy")))
+    (exe: "es-proxy")
+    (exe: "es-proxy-stress-test")))
